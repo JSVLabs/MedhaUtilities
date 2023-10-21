@@ -11,8 +11,10 @@ public class MedhaReporter {
       }
 
       public static void assertEqual(String description, String expected, String actual){
-            if(expected == actual){
+            if(expected.equalsIgnoreCase(actual)){
                 postReportMessage("In Progress", description,"pass","",expected,actual);
+            }else{
+                postReportMessage("In Progress", description,"fail","",expected,actual);
             }
       }
     public static void postActionStatus(String actionStatus){
