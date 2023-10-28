@@ -12,10 +12,7 @@ import java.util.ResourceBundle;
 
 public class MedhaReader {
     private Test test;
-//    private String medhaUri = "https://sandbox.medha.io/api/";
-//    private String medhaTaskUri = "tests/v3/";
-//    private String medhaTestUri = "tests/v4/";
-//    private String medhaUniqueId = "results/get-id";
+
     private MedhaTestTasks[] medhaTestTasks;
     public MedhaReader(String accessToken){
         MedhaDataReader.setAccesstoken(accessToken);
@@ -72,11 +69,11 @@ public class MedhaReader {
      }
 
      public void startTest(String[] argss)  {
-         //medha.MedhaLibrary.MedhaReporter reporter = new medha.MedhaLibrary.MedhaReporter();
+
          MedhaReporter reporter = new MedhaReporter();
          ResourceBundle resourceBundle
                  = ResourceBundle.getBundle("MedhaConfig");
-         //medha.MedhaLibrary.RestClient restClient = new medha.MedhaLibrary.RestClient();
+
          RestClient restClient = new RestClient();
          ObjectMapper objectMapper = new ObjectMapper();
          String actionResult = "";
@@ -85,9 +82,7 @@ public class MedhaReader {
              String baseUrl = resourceBundle.getString("medhaBaseUrl");
              String resultUrl = resourceBundle.getString("results");
              String apiUrl = baseUrl + resultUrl;
-             //medha.MedhaLibrary.MedhaDataReader.setEnvironment(argss[argss.length-2]);
              MedhaDataReader.setEnvironment(argss[argss.length-2]);
-             //medha.MedhaLibrary.MedhaDataReader.setBrowser(argss[argss.length-1]);
              MedhaDataReader.setBrowser(browser);
              //Creating a report json
              String[] tests = argss[0].split(" ");
