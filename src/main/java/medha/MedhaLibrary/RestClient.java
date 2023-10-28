@@ -2,9 +2,12 @@ package medha.MedhaLibrary;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 
 public class RestClient {
@@ -40,6 +43,32 @@ public class RestClient {
         return null;
    }
 
+    public String sendRequest(String apiUrl, String accessToken, Map<String,String> queryParam){
+        apiUrl = constructURLWithQueryParams(apiUrl,queryParam);
+
+        try{
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .header("x-api-key", accessToken) // Set the access token in the request header
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            int statusCode = response.statusCode();
+            if (statusCode == 200) {
+                String responseBody = response.body();
+                return responseBody;
+            } else {
+                System.err.println("Failed to GET data from. "+apiUrl+" Status code: " + statusCode);
+                return "";
+            }
+        }catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
    public String postRequest(String apiUrl, String accessToken, String requestBody){
        try{
            HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -65,5 +94,18 @@ public class RestClient {
        }
        return null;
    }
-
+    private String constructURLWithQueryParams(String baseUrl, Map<String, String> queryParams) {
+        StringBuilder result = new StringBuilder(baseUrl);
+        if (queryParams != null && !queryParams.isEmpty()) {
+            result.append("?");
+            for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+                result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
+                result.append("=");
+                result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
+                result.append("&");
+            }
+            result.deleteCharAt(result.length() - 1); // Remove the extra "&" at the end
+        }
+        return result.toString();
+    }
 }

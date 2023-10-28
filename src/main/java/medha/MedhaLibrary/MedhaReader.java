@@ -7,6 +7,8 @@ import medha.MedhaLibrary.MedhaPOJO.Test;
 import medha.MedhaLibrary.MedhaPOJO.UniqueId;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 
@@ -27,12 +29,13 @@ public class MedhaReader {
          String medhaUri = resourceBundle.getString("medhaBaseUrl");
          String medhaTaskUri = resourceBundle.getString("taskInfo");
          String medhaTestUri = resourceBundle.getString("testInfo");
-         //medha.MedhaLibrary.RestClient rs = new medha.MedhaLibrary.RestClient();
+         Map<String, String> queryParams = new HashMap<>();
+         queryParams.put("environment", MedhaDataReader.getEnvironment());
          RestClient rs = new RestClient();
         ObjectMapper objectMapper = new ObjectMapper();
         String testInfoUri = medhaUri + medhaTestUri + testId;
         String tasksUri = medhaUri + medhaTaskUri + testId + "/tasks";
-        String testInfo = rs.sendRequest(testInfoUri,MedhaDataReader.getAccesstoken());
+        String testInfo = rs.sendRequest(testInfoUri,MedhaDataReader.getAccesstoken(),queryParams);
          try {
              this.test = objectMapper.readValue(testInfo, Test.class);
              String taskInfo = rs.sendRequest(tasksUri,MedhaDataReader.getAccesstoken());
@@ -106,9 +109,6 @@ public class MedhaReader {
                          for (int a = 0; a < actCount; a++) {
                              String pageName = this.medhaTestTasks[t].getActions().get(a).getPage();
                              String actionName = this.medhaTestTasks[t].getActions().get(a).getAction();
-//                             medha.MedhaLibrary.MedhaDataReader.setIterationIndex(i);
-//                             medha.MedhaLibrary.MedhaDataReader.setTaskIndex(t);
-//                             medha.MedhaLibrary.MedhaDataReader.setActionIndex(a);
                              MedhaDataReader.setIterationIndex(i);
                              MedhaDataReader.setTaskIndex(t);
                              MedhaDataReader.setActionIndex(a);
@@ -153,8 +153,7 @@ public class MedhaReader {
     private String executeAction(String className, String actionName) {
         Class[] noparams = {};
         try{
-//            Action action =test.getIterations().get(MedhaDataReader.getIterationIndex()).getTasks().get(MedhaDataReader.getTaskIndex()).getActions().get(MedhaDataReader.getActionIndex());
-//            action.setActionStatus("Executed");
+
             String fullClassPath = "com.libraries.pages."+className;
             Class cls = Class.forName(fullClassPath);
             Object obj = cls.getDeclaredConstructor().newInstance();
@@ -163,10 +162,7 @@ public class MedhaReader {
             //To Do: Add code to send request to update the execution status
             return "Pass";
         }catch(Exception ex) {
-            //int iterationNumber = medha.MedhaLibrary.MedhaDataReader.getIterationIndex() + 1;
             int iterationNumber = MedhaDataReader.getIterationIndex() + 1;
-            //System.out.println("Exception occured while executing the test "+ medha.MedhaLibrary.MedhaDataReader.getTestId()+" Iteration "+iterationNumber+" action "+className + " "+actionName+" error: "+ex.getLocalizedMessage());
-            //System.out.println(ex.getStackTrace());
             return "Exception occured while executing the test "+ MedhaDataReader.getTestId()+" Iteration "+iterationNumber+" action "+className + " "+actionName+" error: "+ex.getLocalizedMessage();
         }
     }
