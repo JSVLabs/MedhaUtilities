@@ -52,9 +52,11 @@ public class MedhaReader {
                  = ResourceBundle.getBundle("MedhaConfig");
          String medhaUri = resourceBundle.getString("medhaBaseUrl");
          String medhaTestUri = resourceBundle.getString("testInfo");
+         Map<String, String> queryParams = new HashMap<>();
+         queryParams.put("environment", MedhaDataReader.getEnvironment());
          ObjectMapper objectMapper = new ObjectMapper();
          String testInfoUri = medhaUri + medhaTestUri + testId;
-         String testInfo = rs.sendRequest(testInfoUri,"");
+         String testInfo = rs.sendRequest(testInfoUri,MedhaDataReader.getAccesstoken(),queryParams);
          try {
              return (objectMapper.readValue(testInfo, Test.class));
          } catch (JsonProcessingException e) {
@@ -117,6 +119,7 @@ public class MedhaReader {
                                  MedhaReporter.postActionStatus("Completed");
                              }else{
                                  System.out.println(actionResult);
+                                 MedhaReporter.report(actionResult,"Fail","");
                                  break iterationLoop;
                              }
                             }
@@ -153,7 +156,6 @@ public class MedhaReader {
     private String executeAction(String className, String actionName) {
         Class[] noparams = {};
         try{
-
             String fullClassPath = "com.libraries.pages."+className;
             Class cls = Class.forName(fullClassPath);
             Object obj = cls.getDeclaredConstructor().newInstance();
@@ -163,7 +165,7 @@ public class MedhaReader {
             return "Pass";
         }catch(Exception ex) {
             int iterationNumber = MedhaDataReader.getIterationIndex() + 1;
-            return "Exception occured while executing the test "+ MedhaDataReader.getTestId()+" Iteration "+iterationNumber+" action "+className + " "+actionName+" error: "+ex.getLocalizedMessage();
+            return "Exception occured while executing the test "+ MedhaDataReader.getTestId()+" Iteration "+iterationNumber+" action "+className + " "+actionName+" error: "+ex;
         }
     }
 
